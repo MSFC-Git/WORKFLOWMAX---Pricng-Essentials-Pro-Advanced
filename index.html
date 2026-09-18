@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="WorkflowMax by BlueRock plan comparison and per-user cost calculator. Prepared by ConTech Solutions.">
+<meta name="author" content="ConTech Solutions">
+<style>
+  :root{color-scheme:light dark}
+  html,body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none !important}
+</style>
+<title>WorkflowMax Plans Chooser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Open+Sans:wght@300;600;700&display=swap">
+
+<style>
+/* ---------------------------------------------------------------
+   Palette: WorkflowMax brand tokens, read from workflowmax.com's
+   own stylesheet (evergreen #0a2f28, moneytree #63db94, leaf
+   #0d8d5c, obsidian #0b151f, plus their grey ramp).
+   --------------------------------------------------------------- */
+:root{
+  --ground:#fcfcfd;
+  --surface:#ffffff;
+  --surface-2:#f9fafb;
+  --ink:#0b151f;
+  --ink-2:#384250;
+  --muted:#6c737f;
+  --line:#e5e7eb;
+  --line-strong:#d2d6db;
+  --accent:#0a2f28;
+  --accent-soft:#ecfcf2;
+  --accent-line:#aaf0c4;
+  --on-accent:#ffffff;
+  --pop:#63db94;
+  --warn:#a15c07;
+  --warn-soft:#fefbe8;
+  --warn-line:#fde272;
+  --yes:#0d8d5c;
+  --no:#9da4ae;
+  --plan-e:#6c737f;
+  --plan-p:#0d8d5c;
+  --plan-a:#0a2f28;
+  /* ConTech Solutions brand (guidelines V1, Nov 2024) — corner lockup only */
+  --ct-ink:#504F4D;
+  --ct-accent:#F79B55;
+  --ct-muted:#828282;
+  --or-soft:#fdf1e5;
+  --or-line:#f5c493;
+  --or-ink:#9a5410;
+  --on-or:#1D1D1D;
+  --shadow:0 1px 2px rgba(11,21,31,.05),0 10px 26px -20px rgba(11,21,31,.35);
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0b151f;
+    --surface:#111927;
+    --surface-2:#1f2a37;
+    --ink:#f9fafb;
+    --ink-2:#d2d6db;
+    --muted:#9da4ae;
+    --line:#1f2a37;
+    --line-strong:#384250;
+    --accent:#63db94;
+    --accent-soft:#0a2f28;
+    --accent-line:#0d8d5c;
+    --on-accent:#0a2f28;
+    --pop:#63db94;
+    --warn:#fde272;
+    --warn-soft:#2b1f08;
+    --warn-line:#713b12;
+    --yes:#63db94;
+    --no:#4d5761;
+    --plan-e:#9da4ae;
+    --plan-p:#3ccb7f;
+    --plan-a:#63db94;
+    --ct-ink:#E0E0E0;
+    --ct-accent:#F79B55;
+    --ct-muted:#BDBDBD;
+    --or-soft:#33230f;
+    --or-line:#8a5a26;
+    --or-ink:#F79B55;
+    --on-or:#1D1D1D;
+    --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 26px -20px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b151f;
+  --surface:#111927;
+  --surface-2:#1f2a37;
+  --ink:#f9fafb;
+  --ink-2:#d2d6db;
+  --muted:#9da4ae;
+  --line:#1f2a37;
+  --line-strong:#384250;
+  --accent:#63db94;
+  --accent-soft:#0a2f28;
+  --accent-line:#0d8d5c;
+  --on-accent:#0a2f28;
+  --pop:#63db94;
+  --warn:#fde272;
+  --warn-soft:#2b1f08;
+  --warn-line:#713b12;
+  --yes:#63db94;
+  --no:#4d5761;
+  --plan-e:#9da4ae;
+  --plan-p:#3ccb7f;
+  --plan-a:#63db94;
+  --ct-ink:#E0E0E0;
+  --ct-accent:#F79B55;
+  --ct-muted:#BDBDBD;
+  --or-soft:#33230f;
+  --or-line:#8a5a26;
+  --or-ink:#F79B55;
+  --on-or:#1D1D1D;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 26px -20px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding-inline:18px;padding-block:26px 64px}
+h1,h2,h3{font-family:Inter,Arial,sans-serif;margin:0;text-wrap:balance;letter-spacing:-.021em}
+h1{font-size:clamp(27px,4.6vw,38px);font-weight:700;line-height:1.1}
+h2{font-size:19px;font-weight:600}
+h3{font-size:14px;font-weight:600;letter-spacing:-.005em}
+p{margin:0}
+a{color:var(--accent)}
+
+/* ---------- masthead ---------- */
+.mast{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-start;justify-content:space-between}
+.mast-main{display:flex;flex-direction:column;gap:12px;min-width:min(100%,320px);flex:1 1 420px}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:17.9px;font-weight:500;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);line-height:1.25;overflow-wrap:break-word
+}
+
+/* ConTech Solutions logo — brand guidelines V1, Nov 2024.
+   Fixed artwork: it does not invert with the page theme. */
+.brand{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  flex:0 0 auto;align-self:flex-end
+}
+.brand .pre{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)
+}
+.ct-logo{
+  display:inline-flex;flex-direction:column;background:#504F4D;border-radius:15px;
+  padding:19px 27px 21px;color:#F79B55;text-transform:uppercase;
+  font-family:"Open Sans",Arial,sans-serif;line-height:1.06
+}
+.ct-logo .l1{font-weight:700;font-size:29px;letter-spacing:.015em}
+.ct-logo .l2{font-weight:300;font-size:27px;letter-spacing:.075em}
+
+/* ConTech contact panel */
+.contact{
+  margin-top:20px;background:var(--or-soft);border:1px solid var(--or-line);
+  border-radius:var(--r);padding:16px 18px;
+  box-shadow:inset 4px 0 0 var(--ct-accent);
+  display:flex;flex-direction:column;gap:6px
+}
+.contact p{font-size:14px;color:var(--ink);line-height:1.5}
+.contact strong{font-weight:600}
+.contact a{color:var(--or-ink);font-weight:600;text-underline-offset:2px}
+
+/* capability list replacing the old subtitle */
+.caps{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  gap:5px 22px;margin-top:2px
+}
+.caps div{
+  display:flex;gap:9px;align-items:flex-start;font-size:14.5px;color:var(--ink-2);line-height:1.4
+}
+.caps div::before{
+  content:"";width:6px;height:6px;border-radius:1px;background:var(--pop);
+  flex:none;margin-top:7px
+}
+
+.provenance{
+  display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--muted);
+  border-top:1px solid var(--line);padding-top:10px;margin-top:18px
+}
+
+/* ---------- panels ---------- */
+section.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);margin-top:20px;overflow:hidden
+}
+.panel-head{
+  display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-2)
+}
+.panel-body{padding:18px}
+
+/* ---------- controls ---------- */
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld > .lbl{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;font-weight:500;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted)
+}
+input[type=number],input[type=text],select{
+  font:inherit;font-size:15px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:7px;padding:9px 10px;width:100%;
+  font-variant-numeric:tabular-nums
+}
+input[type=number]{font-family:"IBM Plex Mono",ui-monospace,monospace}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--yes);outline-offset:2px}
+
+.seg{display:flex;border:1px solid var(--line-strong);border-radius:7px;overflow:hidden}
+.seg button{
+  flex:1;font:inherit;font-size:13.5px;font-weight:600;padding:9px 6px;cursor:pointer;
+  background:var(--surface);color:var(--ink-2);border:0;border-right:1px solid var(--line);
+  white-space:nowrap
+}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ct-accent);color:var(--on-or)}
+.seg button .save{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:500;opacity:.78;letter-spacing:.04em}
+
+/* ---------- results ---------- */
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);margin-top:20px;overflow:hidden}
+.tile{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tile .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:"IBM Plex Mono",monospace;font-size:clamp(22px,3.4vw,27px);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.tile .n{font-size:12.5px;color:var(--muted)}
+.tile.total{background:var(--accent-soft)}
+.tile.total .v{color:var(--yes)}
+
+.notes{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.note{
+  display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.45;
+  border-radius:8px;padding:10px 12px;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)
+}
+.note.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--ink)}
+.note.save{background:var(--or-soft);border-color:var(--or-line);color:var(--ink)}
+.note.save .mark{color:var(--ct-accent)}
+.note .mark{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--warn);flex:none}
+.note.plain .mark{color:var(--muted)}
+
+/* ---------- tables ---------- */
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:560px}
+caption{text-align:left;font-size:12.5px;color:var(--muted);padding:0 0 10px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+thead th{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-strong);white-space:nowrap
+}
+td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sel td{background:var(--accent-soft)}
+.planchip{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.planchip::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--pc,var(--muted));flex:none}
+.pc-E{--pc:var(--plan-e)}.pc-P{--pc:var(--plan-p)}.pc-A{--pc:var(--plan-a)}
+.minnote{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);display:block;font-weight:400}
+
+/* ---------- matrix ---------- */
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;align-items:start}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.chk{
+  display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink-2);
+  border:1px solid var(--line-strong);border-radius:20px;padding:7px 13px;cursor:pointer;
+  background:var(--surface);user-select:none
+}
+.chk input{accent-color:var(--yes);margin:0}
+.chk:has(input:checked){background:var(--accent-soft);border-color:var(--accent-line);color:var(--yes)}
+
+tr.arearow th{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--or-ink);background:var(--or-soft);padding-top:12px;padding-bottom:10px;
+  border-bottom:1px solid var(--or-line);
+  box-shadow:inset 3px 0 0 var(--ct-accent)
+}
+tr.arearow th .tag{color:var(--or-ink);border-color:var(--or-line)}
+td.mk{text-align:center;width:88px;font-size:15px;font-weight:700}
+th.mk{text-align:center;width:88px}
+.tick{color:var(--yes)}
+.cross{color:var(--no);font-weight:400}
+tr.common-row td.feat{color:var(--muted)}
+.tag{
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--line-strong);border-radius:4px;padding:1px 5px;color:var(--muted);
+  margin-left:8px;white-space:nowrap
+}
+.empty{padding:26px 4px;color:var(--muted);font-size:14px}
+.count{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted)}
+
+footer.foot{margin-top:26px;font-size:12.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:14px}
+footer.foot strong{color:var(--ink-2);font-weight:600}
+footer.foot p + p{margin-top:8px}
+
+@media (max-width:560px){
+  .panel-body{padding:14px}
+  .tile{padding:13px 14px}
+  .eyebrow{font-size:15px;letter-spacing:.09em}
+  .brand{align-self:flex-start}
+  .ct-logo{padding:15px 21px 17px}
+  .ct-logo .l1{font-size:24px}
+  .ct-logo .l2{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="mast-main">
+    <span class="eyebrow">Plan comparison and cost calculator</span>
+    <h1>WorkflowMax Plans Chooser</h1>
+    <div class="caps">
+      <div>Every feature, plan and price</div>
+      <div>Filter by feature</div>
+      <div>Filter by number of users</div>
+      <div>Filter by plan — Essentials, Pro, Advanced</div>
+      <div>Display by currency</div>
+      <div>Allowance for minimum users</div>
+      <div>Discount by payment cadence</div>
+    </div>
+  </div>
+  <div class="brand">
+    <span class="pre">Prepared by</span>
+    <span class="ct-logo" role="img" aria-label="ConTech Solutions">
+      <span class="l1">ConTech</span><span class="l2">Solutions</span>
+    </span>
+  </div>
+</header>
+
+<div class="provenance">
+  <span>Source: workflowmax.com/pricing</span>
+  <span>Prices read 18 September 2026</span>
+  <span>NZD excludes GST</span>
+</div>
+
+<!-- ============ CALCULATOR ============ -->
+<section class="panel">
+  <div class="panel-head">
+    <h2>Cost calculator</h2>
+    <span class="count" id="ratebasis"></span>
+  </div>
+  <div class="panel-body">
+
+    <div class="ctrl-grid">
+      <label class="fld" for="users">
+        <span class="lbl">Number of users</span>
+        <input type="number" id="users" min="1" max="2000" step="1" value="8" inputmode="numeric">
+      </label>
+
+      <div class="fld">
+        <span class="lbl">Plan</span>
+        <div class="seg" id="planseg" role="group" aria-label="Plan">
+          <button type="button" id="plan-E" data-plan="E" aria-pressed="false">Essentials</button>
+          <button type="button" id="plan-P" data-plan="P" aria-pressed="true">Pro</button>
+          <button type="button" id="plan-A" data-plan="A" aria-pressed="false">Advanced</button>
+        </div>
+      </div>
+
+      <div class="fld">
+        <span class="lbl">Billing cadence</span>
+        <div class="seg" id="cadseg" role="group" aria-label="Billing cadence">
+          <button type="button" id="cad-0" data-cad="0" aria-pressed="true">Monthly</button>
+          <button type="button" id="cad-1" data-cad="1" aria-pressed="false">Quarterly<span class="save">save 5%</span></button>
+          <button type="button" id="cad-2" data-cad="2" aria-pressed="false">Annual<span class="save">save 10%</span></button>
+        </div>
+      </div>
+
+      <label class="fld" for="currency">
+        <span class="lbl">Currency</span>
+        <select id="currency">
+          <option value="NZD" selected>NZD — New Zealand dollar</option>
+          <option value="AUD">AUD — Australian dollar</option>
+          <option value="USD">USD — US dollar</option>
+          <option value="GBP">GBP — British pound</option>
+          <option value="CAD">CAD — Canadian dollar</option>
+          <option value="EUR">EUR — Euro (converted)</option>
+        </select>
+      </label>
+
+      <label class="fld" for="fx" id="fxwrap" hidden>
+        <span class="lbl">NZD → EUR rate</span>
+        <input type="number" id="fx" min="0.01" max="5" step="0.0001" value="0.4993">
+      </label>
+    </div>
+
+    <div class="results" id="results"></div>
+    <div class="notes" id="notes"></div>
+
+    <div class="scroller" style="margin-top:24px">
+      <table id="cmptable">
+        <caption id="cmpcap"></caption>
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th class="num">Billable users</th>
+            <th class="num">Per user / month</th>
+            <th class="num">Team / month</th>
+            <th class="num">Team / year</th>
+          </tr>
+        </thead>
+        <tbody id="cmpbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MATRIX ============ -->
+<section class="panel">
+  <div class="panel-head">
+    <h2>Full feature matrix</h2>
+    <span class="count" id="matrixcount"></span>
+  </div>
+  <div class="panel-body">
+    <div class="filters">
+      <label class="fld" for="areafilter">
+        <span class="lbl">Filter by area</span>
+        <select id="areafilter"><option value="">All 12 areas</option></select>
+      </label>
+      <label class="fld" for="planfilter">
+        <span class="lbl">Filter by plan</span>
+        <select id="planfilter">
+          <option value="">All plans</option>
+          <option value="E">In Essentials</option>
+          <option value="P">In Pro</option>
+          <option value="A">In Advanced</option>
+        </select>
+      </label>
+      <label class="fld" for="sortby">
+        <span class="lbl">Sort by</span>
+        <select id="sortby">
+          <option value="plans" selected>Plans included — common features first</option>
+          <option value="area">Feature area</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="scroller" style="margin-top:18px">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="mk"><span class="planchip pc-E">Essentials</span></th>
+            <th class="mk"><span class="planchip pc-P">Pro</span></th>
+            <th class="mk"><span class="planchip pc-A">Advanced</span></th>
+          </tr>
+        </thead>
+        <tbody id="matrixbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="matrixempty" hidden>No features match those filters.</div>
+  </div>
+</section>
+
+<section class="contact">
+  <p><strong>Prices and features correct at time of publication.</strong> New features are being released regularly.</p>
+  <p>Contact Mark on <a href="tel:+64272701000">027 270 1000</a> or <a href="mailto:mark@contechsolutions.io">mark@contechsolutions.io</a> if you have any questions.</p>
+</section>
+
+<footer class="foot">
+  <p><strong>Where these numbers come from.</strong> Plan features, per-user rates and user minimums are transcribed from the WorkflowMax by BlueRock pricing page (workflowmax.com/pricing), read on 18 September 2026. WorkflowMax publishes its own rate card in NZD, AUD, USD, GBP and CAD — those figures are used exactly as published, not converted. Euro is <em>not</em> a currency WorkflowMax bills in; the EUR option is a conversion from NZD at the editable mid-market rate shown, and is indicative only.</p>
+  <p><strong>Assumptions worth checking before you quote.</strong> Quarterly and annual figures are the published per-user-per-month rate for that cadence multiplied by 3 and by 12 respectively. NZ prices are exclusive of GST (15%); in other jurisdictions, check whether local sales tax, VAT or GST is added on top. Essentials is sold for 3–25 users, Pro from 5 users and Advanced from 10 users, so a team below a plan's minimum is billed at the minimum. Dedicated account manager, guided onboarding and sandbox access are listed as requiring a minimum of 25 users on an annual subscription.</p>
+  <p>Colours follow the WorkflowMax by BlueRock brand palette as published in their own site stylesheet; the corner lockup follows the ConTech Solutions brand guidelines V1, November 2024. This tool is prepared by ConTech Solutions and is not a WorkflowMax by BlueRock publication.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- data: transcribed from workflowmax.com/pricing, 18 Sep 2026 ---------- */
+
+  var AREAS = ["Sales and quoting","Job management","Time tracking","Invoicing and billing",
+    "Purchasing","Clients and contacts","Reporting and dashboards","Customisation settings",
+    "Integrations and API","Notifications and communication","Mobile and apps","Support and onboarding"];
+
+  // [area, feature, Essentials, Pro, Advanced]
+  var F = [
+    ["Sales and quoting","Leads",0,1,1],
+    ["Sales and quoting","Quotes",1,1,1],
+    ["Sales and quoting","Quote variations",0,1,1],
+    ["Sales and quoting","Online quote acceptance (eQuote)",0,1,1],
+
+    ["Job management","Jobs",1,1,1],
+    ["Job management","Job phases",0,1,1],
+    ["Job management","Kanban view",0,1,1],
+    ["Job management","Scheduling",1,1,1],
+    ["Job management","Capacity planning",0,0,1],
+
+    ["Time tracking","Timesheets",1,1,1],
+    ["Time tracking","Timer widget, including pause",1,1,1],
+    ["Time tracking","Consolidated task view (Task Manager)",0,1,1],
+    ["Time tracking","Timesheet reminder notifications",0,1,1],
+    ["Time tracking","Export timesheets (Xero AU/NZ Payroll)",0,1,1],
+    ["Time tracking","Leave management (Time Off)",0,1,1],
+    ["Time tracking","Timesheet approvals and approval workflows",0,0,1],
+    ["Time tracking","Microsoft 365 and Google Calendar integration",0,0,1],
+
+    ["Invoicing and billing","Invoices",1,1,1],
+    ["Invoicing and billing","Invoicing by phase",0,1,1],
+    ["Invoicing and billing","Invoice by % of quote",0,1,1],
+    ["Invoicing and billing","Import invoices from Xero",0,1,1],
+    ["Invoicing and billing","Individual WIP entry management",0,0,1],
+
+    ["Purchasing","Purchase orders",1,1,1],
+    ["Purchasing","Stock receiving workflows",0,1,1],
+    ["Purchasing","Bulk purchase order creation",0,1,1],
+    ["Purchasing","Multi-currency (purchasing)",0,1,1],
+
+    ["Clients and contacts","Contacts",1,1,1],
+    ["Clients and contacts","Clients",1,1,1],
+    ["Clients and contacts","Collaboration Manager",0,1,1],
+
+    ["Reporting and dashboards","Dashboard",1,1,1],
+    ["Reporting and dashboards","Customisable dashboard",0,1,1],
+    ["Reporting and dashboards","Standard reporting",1,1,1],
+    ["Reporting and dashboards","Custom reporting",0,1,1],
+    ["Reporting and dashboards","Productivity / capacity reporting",0,1,1],
+    ["Reporting and dashboards","Custom reports — filter views",0,1,1],
+    ["Reporting and dashboards","Scheduled reports",0,0,1],
+    ["Reporting and dashboards","AI reporting insights",0,0,1],
+
+    ["Customisation settings","Global search",1,1,1],
+    ["Customisation settings","Custom fields",0,1,1],
+    ["Customisation settings","Custom task rates (clients) and custom job rates",0,1,1],
+    ["Customisation settings","Documents — custom templates",0,1,1],
+    ["Customisation settings","Ability to create roles (permissions)",0,1,1],
+
+    ["Integrations and API","Xero integration",1,1,1],
+    ["Integrations and API","QuickBooks integration",1,1,1],
+    ["Integrations and API","API access",0,1,1],
+    ["Integrations and API","Zapier integration",0,1,1],
+    ["Integrations and API","HubSpot integration",0,1,1],
+    ["Integrations and API","Airwallex integration",0,1,1],
+    ["Integrations and API","Dropbox integration",0,1,1],
+    ["Integrations and API","SharePoint integration",0,1,1],
+    ["Integrations and API","Box integration",0,1,1],
+    ["Integrations and API","SuiteFiles integration",0,1,1],
+    ["Integrations and API","Google Drive integration",0,1,1],
+    ["Integrations and API","Microsoft 365 Calendar integration",0,0,1],
+    ["Integrations and API","Google Calendar integration",0,0,1],
+    ["Integrations and API","Model Context Protocol (MCP) server",0,0,1,"pin"],
+
+    ["Notifications and communication","Default notifications",1,1,1],
+    ["Notifications and communication","Custom notifications",0,1,1],
+
+    ["Mobile and apps","Native mobile app (Apple iOS / Android)",1,1,1],
+
+    ["Support and onboarding","Dedicated account manager",0,0,1],
+    ["Support and onboarding","Guided onboarding",0,0,1],
+    ["Support and onboarding","Sandbox / testing account",0,0,1]
+  ];
+
+  var SUPPORT_NOTE = "Min. 25 users, annual subscription";
+  var PRICE_DATE = "18 September 2026";
+
+  // Published per-user, per-month rate by cadence: [monthly, quarterly, annual]
+  var PRICES = {
+    NZD:{E:[13.89,13.20,12.50], P:[25.00,23.75,22.50], A:[45.00,42.75,40.50]},
+    AUD:{E:[12.22,11.61,11.00], P:[22.00,21.00,20.00], A:[37.78,35.89,34.00]},
+    USD:{E:[ 8.33, 7.91, 7.50], P:[15.00,14.25,13.50], A:[25.00,23.75,22.50]},
+    GBP:{E:[ 6.11, 5.80, 5.50], P:[11.11,10.55,10.00], A:[18.89,17.94,17.00]},
+    CAD:{E:[11.11,10.55,10.00], P:[23.33,22.17,21.00], A:[35.00,33.25,31.50]}
+  };
+
+  var PLANS = {
+    E:{key:"E",name:"Essentials",min:3,max:25,idx:2},
+    P:{key:"P",name:"Pro",min:5,max:null,idx:3},
+    A:{key:"A",name:"Advanced",min:10,max:null,idx:4}
+  };
+  var ORDER = ["E","P","A"];
+  var CADENCE = [
+    {name:"Monthly",  months:1, adj:"monthly"},
+    {name:"Quarterly",months:3, adj:"quarterly"},
+    {name:"Annual",   months:12,adj:"annual"}
+  ];
+  var SYM = {NZD:"NZ$",AUD:"AU$",USD:"US$",GBP:"£",CAD:"C$",EUR:"€"};
+
+  var state = {users:8, plan:"P", cad:0, cur:"NZD", fx:0.4993,
+               area:"", planFilter:"", sort:"plans"};
+
+  var $ = function(id){return document.getElementById(id);};
+
+  /* ---------- money ---------- */
+  function rate(plan,cur,cad){
+    if(cur === "EUR"){ return PRICES.NZD[plan][cad] * state.fx; }
+    return PRICES[cur][plan][cad];
+  }
+  function money(n,dp){
+    if(dp === undefined) dp = 2;
+    return SYM[state.cur] + n.toLocaleString("en-NZ",{minimumFractionDigits:dp,maximumFractionDigits:dp});
+  }
+  function billable(plan,users){
+    var p = PLANS[plan];
+    var n = Math.max(users, p.min);
+    return p.max ? Math.min(n, p.max) : n;
+  }
+
+  /* ---------- calculator ---------- */
+  function renderCalc(){
+    var plan = PLANS[state.plan], cad = CADENCE[state.cad];
+    var r = rate(state.plan, state.cur, state.cad);
+    var n = billable(state.plan, state.users);
+    var perCycle = r * cad.months * n;
+
+    $("ratebasis").textContent = plan.name + " · " + cad.name + " billing · " + state.cur;
+
+    $("results").innerHTML =
+      tile("Cost per user / month", money(r), cad.name.toLowerCase() + " rate") +
+      tile("Cost per user / quarter", money(r*3), "3 × the " + cad.adj + " rate") +
+      tile("Cost per user / year", money(r*12), "12 × the " + cad.adj + " rate") +
+      tile("Billed every " + (cad.months===1?"month":cad.months===3?"quarter":"year"),
+           money(perCycle), n + (n===1?" user":" users") + " × " + money(r) + " × " + cad.months +
+           (cad.months===1?" month":" months"), true);
+
+    var notes = [];
+    if(state.users < plan.min){
+      notes.push(note("!", "<strong>" + plan.name + " has a minimum of " + plan.min + " users.</strong> You entered " +
+        state.users + ", so every figure above is billed at " + plan.min + " users. Effective cost for your " +
+        state.users + " actual " + (state.users===1?"person":"people") + ": <strong>" +
+        money(r*plan.min/state.users) + "</strong> per person per month.", "warn"));
+    }
+    if(plan.max && state.users > plan.max){
+      notes.push(note("!", "<strong>Essentials is sold for 3–25 users.</strong> At " + state.users +
+        " users this plan is not available — figures above are capped at 25 and are illustrative only. Compare Pro and Advanced instead.", "warn"));
+    }
+    if(state.cur === "EUR"){
+      notes.push(note("€", "WorkflowMax does not bill in euro. This is NZD converted at <strong>" +
+        state.fx.toFixed(4) + "</strong> — mid-market rate at 17:00 UTC, 17 September 2026 (xe.com). Edit the rate above to re-price. Treat as indicative, not a quotable price.", "plain"));
+    }
+    if(state.cur === "NZD"){
+      notes.push(note("+", "Prices are as published by WorkflowMax as at " + PRICE_DATE +
+        ", and are <strong>exclusive of GST</strong>. At 15%, the " + cad.adj +
+        " bill above becomes <strong>" + money(perCycle*1.15) + "</strong> including GST.", "plain"));
+    } else {
+      notes.push(note("+", "Prices are as published by WorkflowMax as at " + PRICE_DATE +
+        ". Check whether local sales tax, VAT or GST is added on top in your client's jurisdiction.", "plain"));
+    }
+    if(state.cad > 0){
+      var mRate = rate(state.plan, state.cur, 0);
+      var saved = (mRate - r) * 12 * n;
+      notes.push(note("↓", cad.name + " billing saves <strong>" + money(saved) +
+        "</strong> a year against monthly, for " + n + " users on " + plan.name + ".", "save"));
+    }
+    $("notes").innerHTML = notes.join("");
+
+    $("cmpcap").textContent = "All three plans at " + state.users + (state.users===1?" user":" users") +
+      ", " + cad.name.toLowerCase() + " billing, " + state.cur + (state.cur==="EUR"?" (converted)":"") + ".";
+    $("cmpbody").innerHTML = ORDER.map(function(k){
+      var p = PLANS[k], bn = billable(k, state.users), pr = rate(k, state.cur, state.cad);
+      var over = p.max && state.users > p.max;
+      var minFlag = state.users < p.min;
+      return '<tr class="' + (k===state.plan?"sel":"") + '">' +
+        '<td><span class="planchip pc-' + k + '">' + p.name + '</span>' +
+          (over ? '<span class="minnote">Not available above ' + p.max + ' users</span>'
+                : minFlag ? '<span class="minnote">Billed at the ' + p.min + '-user minimum</span>' : '') +
+        '</td>' +
+        '<td class="num">' + (over ? "—" : bn) + '</td>' +
+        '<td class="num">' + (over ? "—" : money(pr)) + '</td>' +
+        '<td class="num">' + (over ? "—" : money(pr*bn)) + '</td>' +
+        '<td class="num">' + (over ? "—" : money(pr*bn*12)) + '</td>' +
+        '</tr>';
+    }).join("");
+  }
+
+  function tile(k,v,n,isTotal){
+    return '<div class="tile' + (isTotal?" total":"") + '"><span class="k">' + k +
+      '</span><span class="v">' + v + '</span><span class="n">' + n + '</span></div>';
+  }
+  function note(mark,html,kind){
+    return '<div class="note ' + (kind || "plain") + '"><span class="mark">' + mark +
+      '</span><span>' + html + '</span></div>';
+  }
+
+  /* ---------- commonality ---------- */
+  function planCount(r){ return r[2] + r[3] + r[4]; }
+  function isCommon(r){ return planCount(r) === 3; }
+
+  /* ---------- matrix ---------- */
+  function sigOf(r){ return ORDER.filter(function(k){ return r[PLANS[k].idx]; }); }
+  function sigKey(r){ return sigOf(r).join(""); }
+  function groupLabel(sig){
+    var names = sig.map(function(k){ return PLANS[k].name; });
+    if(names.length === 3) return "Included in all three plans";
+    if(names.length === 2) return "Included in " + names[0] + " and " + names[1] + " plans";
+    return "Included in the " + names[0] + " plan only";
+  }
+
+  function renderMatrix(){
+    var rows = F.filter(function(r){
+      if(state.area && r[0] !== state.area) return false;
+      if(state.planFilter && !r[PLANS[state.planFilter].idx]) return false;
+      return true;
+    });
+
+    var bits = [rows.length + " of " + F.length + " features"];
+    if(state.planFilter) bits.push("in " + PLANS[state.planFilter].name);
+    bits.push(state.sort === "plans" ? "sorted by plans included" : "sorted by feature area");
+    $("matrixcount").textContent = bits.join(" \u00b7 ");
+
+    var body = "";
+    if(state.sort === "plans"){
+      var seen = {}, sigs = [];
+      rows.forEach(function(r){
+        var k = sigKey(r);
+        if(!seen[k]){ seen[k] = []; sigs.push(k); }
+        seen[k].push(r);
+      });
+      sigs.sort(function(a,b){
+        if(b.length !== a.length) return b.length - a.length;
+        return a < b ? -1 : 1;
+      });
+      sigs.forEach(function(k){
+        var group = seen[k];
+        group = group.filter(function(r){ return r[5] === "pin"; })
+                     .concat(group.filter(function(r){ return r[5] !== "pin"; }));
+        body += groupHeader(groupLabel(sigOf(group[0])) + " \u00b7 " + group.length +
+                            (group.length === 1 ? " feature" : " features"));
+        group.forEach(function(r){ body += featureRow(r, true); });
+      });
+    } else {
+      var lastArea = null;
+      rows.forEach(function(r){
+        if(r[0] !== lastArea){
+          lastArea = r[0];
+          body += groupHeader(r[0] + (r[0] === "Support and onboarding"
+            ? ' <span class="tag">' + SUPPORT_NOTE + '</span>' : ''));
+        }
+        body += featureRow(r, false);
+      });
+    }
+
+    $("matrixbody").innerHTML = body;
+    $("matrixempty").hidden = rows.length > 0;
+    document.querySelector("table.matrix").hidden = rows.length === 0;
+  }
+
+  function groupHeader(html){
+    return '<tr class="arearow"><th colspan="4">' + html + '</th></tr>';
+  }
+  function featureRow(r, showArea){
+    var c = planCount(r);
+    return '<tr class="' + (c===3 ? "common-row" : "") + '"><td class="feat">' + r[1] +
+      (showArea ? '<span class="tag">' + r[0] + '</span>' : '') +
+      '</td>' + mk(r[2]) + mk(r[3]) + mk(r[4]) + '</tr>';
+  }
+
+  function mk(v){
+    return v ? '<td class="mk"><span class="tick" aria-label="included">✓</span></td>'
+             : '<td class="mk"><span class="cross" aria-label="not included">—</span></td>';
+  }
+
+  /* ---------- wiring ---------- */
+  function setSeg(groupId, attr, value){
+    Array.prototype.forEach.call($(groupId).querySelectorAll("button"), function(b){
+      b.setAttribute("aria-pressed", String(b.getAttribute(attr) === String(value)));
+    });
+  }
+
+  $("users").addEventListener("input", function(){
+    var v = parseInt(this.value, 10);
+    state.users = (isNaN(v) || v < 1) ? 1 : Math.min(v, 2000);
+    renderCalc();
+  });
+  $("planseg").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    state.plan = b.getAttribute("data-plan");
+    setSeg("planseg","data-plan",state.plan);
+    renderCalc();
+  });
+  $("cadseg").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    state.cad = parseInt(b.getAttribute("data-cad"),10);
+    setSeg("cadseg","data-cad",state.cad);
+    renderCalc();
+  });
+  $("currency").addEventListener("change", function(){
+    state.cur = this.value;
+    $("fxwrap").hidden = (state.cur !== "EUR");
+    renderCalc();
+  });
+  $("fx").addEventListener("input", function(){
+    var v = parseFloat(this.value);
+    if(!isNaN(v) && v > 0){ state.fx = v; renderCalc(); }
+  });
+
+  var areaSel = $("areafilter");
+  AREAS.forEach(function(a,i){
+    var o = document.createElement("option");
+    o.value = a; o.textContent = (i+1) + ". " + a;
+    areaSel.appendChild(o);
+  });
+  areaSel.addEventListener("change", function(){ state.area = this.value; renderMatrix(); });
+  $("planfilter").addEventListener("change", function(){ state.planFilter = this.value; renderMatrix(); });
+  $("sortby").addEventListener("change", function(){ state.sort = this.value; renderMatrix(); });
+
+  renderCalc();
+  renderMatrix();
+})();
+</script>
+
+</body>
+</html>
